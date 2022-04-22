@@ -19,19 +19,8 @@ namespace ModCommon
     }
 
     //Global (non-player specific) settings
-    public class ModCommonSettings : IModSettings
+    public class ModCommonSettings
     {
-        public void Reset()
-        {
-            BoolValues.Clear();
-            StringValues.Clear();
-            IntValues.Clear();
-            FloatValues.Clear();
-        }
-
-        public string SettingsVersion {
-            get => GetString( "0.0.0" );
-            set => SetString( value );
-        }       
+        public string SettingsVersion = "0.0.0.0";
     }
 }

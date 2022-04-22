@@ -140,32 +140,30 @@ namespace ModCommon.Util
 
         public static void ChangeTransition(PlayMakerFSM fsm, string stateName, string eventName, string toState)
         {
-            foreach (FsmState t in fsm.FsmStates)
+
+            FsmState t = fsm.GetState(stateName);
+            foreach (FsmTransition trans in t.Transitions)
             {
-                if (t.Name != stateName) continue;
-                foreach (FsmTransition trans in t.Transitions)
+                if (trans.EventName == eventName)
                 {
-                    if (trans.EventName == eventName)
-                    {
-                        trans.ToState = toState;
-                    }
+                    trans.ToState = toState;
+                    trans.ToFsmState = fsm.GetState(toState);
                 }
             }
         }
 
         public static void AddTransition(PlayMakerFSM fsm, string stateName, string eventName, string toState)
         {
-            foreach (FsmState t in fsm.FsmStates)
-            {
-                if (t.Name != stateName) continue;
+            FsmState t=fsm.GetState(stateName);
                 List<FsmTransition> transitions = t.Transitions.ToList();
                 transitions.Add(new FsmTransition
                 {
                     FsmEvent = new FsmEvent(eventName),
-                    ToState = toState
+                    ToState = toState,
+                    ToFsmState = fsm.GetState(toState)
                 });
                 t.Transitions = transitions.ToArray();
-            }
+            
         }
 
         public static void RemoveTransitions(PlayMakerFSM fsm, IEnumerable<string> states,

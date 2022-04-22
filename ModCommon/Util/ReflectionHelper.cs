@@ -45,20 +45,20 @@ namespace ModCommon.Util
     public static class ReflectionExtensions
     {
         [Obsolete("Use SetAttr<TObject, TField>")]
-        public static void SetAttr<T>(this object obj, string name, T val, bool instance = true) =>
-            Modding.ReflectionHelper.SetAttr(obj, name, val, instance);
+        public static void SetField<T>(this object obj, string name, T val, bool instance = true) =>
+            Modding.ReflectionHelper.SetField(obj, name, val);
 
         [Obsolete("Use GetAttr<TType, TField>")]
-        public static T GetAttr<T>(this object obj, string name, bool instance = true) =>
-            Modding.ReflectionHelper.GetAttr<T>(obj, name, instance);
+        public static T GetField<T>(this object obj, string name, bool instance = true) =>
+            Modding.ReflectionHelper.GetField<T>(obj.GetType(), name);
         
         [PublicAPI]
-        public static TField GetAttr<TObject, TField>(this TObject obj, string name) =>
-            Modding.ReflectionHelper.GetAttr<TObject, TField>(obj, name);
+        public static TField GetField<TObject, TField>(this TObject obj, string name) =>
+            Modding.ReflectionHelper.GetField<TObject, TField>(obj, name);
         
         [PublicAPI]
-        public static void SetAttr<TObject, TField>(this TObject obj, string name, TField val) =>
-            Modding.ReflectionHelper.SetAttr(obj, name, val);
+        public static void SetField<TObject, TField>(this TObject obj, string name, TField val) =>
+            Modding.ReflectionHelper.SetField(obj, name, val);
 
         [PublicAPI]
         public static MethodInfo GetMethodInfo(this object obj, string name, bool instance = true) =>

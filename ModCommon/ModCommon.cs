@@ -20,12 +20,15 @@ namespace ModCommon
      * 
      */
     [UsedImplicitly]
-    public class ModCommon : Mod<VoidModSettings, ModCommonSettings>
+    public class ModCommon : Mod,IGlobalSettings<ModCommonSettings>
     {
         public static ModCommon Instance { get; private set; }
 
         CommunicationNode comms;
 
+        public static ModCommonSettings GlobalSettings = new();
+        public void OnLoadGlobal(ModCommonSettings s) => GlobalSettings = s;
+        public ModCommonSettings OnSaveGlobal() => GlobalSettings;
         public override void Initialize()
         {
             if(Instance != null)
@@ -47,14 +50,13 @@ namespace ModCommon
             DevLog.Logger.Hide();
 
             // Setup and prepare the CanvasUtil fonts so that other mods can use them.
-            CanvasUtil.CreateFonts();
 
             Log( "Mod Common is done initializing!" );
         }
 
         private void SetupDefaulSettings()
         {
-            string globalSettingsFilename = Application.persistentDataPath + ModHooks.PathSeperator + GetType().Name + ".GlobalSettings.json";
+            string globalSettingsFilename = Application.persistentDataPath + "/" + GetType().Name + ".GlobalSettings.json";
 
             bool forceReloadGlobalSettings = false;
             if( GlobalSettings != null && GlobalSettings.SettingsVersion != ModCommonSettingsVars.GlobalSettingsVersion )
@@ -77,7 +79,7 @@ namespace ModCommon
                     Log( "Global settings file not found, generating new one... File was not found at: " + globalSettingsFilename );
                 }
 
-                GlobalSettings.Reset();
+                
 
                 GlobalSettings.SettingsVersion = ModCommonSettingsVars.GlobalSettingsVersion;
             }
@@ -92,10 +94,6 @@ namespace ModCommon
         }
 
         // TODO: update when version checker is fixed in new modding API version
-        public override bool IsCurrent()
-        {
-            return true;
-        }
 
         // Load ModCommon first!
         public override int LoadPriority()
@@ -108,23 +106,21 @@ namespace ModCommon
             try
             {
                 UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= CheckAndDisableLogicInMenu;
-                ModHooks.Instance.AfterSavegameLoadHook -= SpellHook;
-                ModHooks.Instance.NewGameHook -= SpellHook;
+                On.HeroController.Start -= SpellHook;
             }
             catch (Exception e)
             {
                 LogWarn("Unable to remove old callbacks because: " + e + " This is probably not a bug.");
             }
 
-            ModHooks.Instance.AfterSavegameLoadHook += SpellHook;
-            ModHooks.Instance.NewGameHook += SpellHook;
+            
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += CheckAndDisableLogicInMenu;
+            On.HeroController.Start += SpellHook;
         }
 
-        private static void SpellHook(SaveGameData data) => SpellHook();
-
-        private static void SpellHook()
+        private void SpellHook(On.HeroController.orig_Start orig, HeroController self)
         {
+            orig(self);
             GameManager.instance.StartCoroutine(AddSpellHook());
         }
 
